@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MC Airport Codes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    background: #000; color: #fff;
+    font-family: "JetBrains Mono", monospace;
+  }
+  .card {
+    width: 400px; padding: 40px;
+    background: #000; border: 1px solid #fff; border-radius: 12px;
+    text-align: center;
+  }
+  h1 { font-size: 18px; font-weight: 700; letter-spacing: 2px; margin-bottom: 6px; }
+  p.sub { font-size: 12px; color: #888; margin-bottom: 28px; }
+  .field { margin-bottom: 16px; text-align: left; }
+  label { display: block; font-size: 12px; color: #888; margin-bottom: 8px; }
+  input {
+    width: 100%; padding: 12px 14px; font-size: 15px;
+    background: #000; color: #fff; border: 1px solid #555; border-radius: 8px;
+    font-family: "JetBrains Mono", monospace; outline: none;
+  }
+  input:focus { border-color: #fff; }
+  button {
+    width: 100%; margin-top: 6px; padding: 12px; font-size: 14px; font-weight: 700;
+    background: #000; color: #fff; border: 1px solid #fff; border-radius: 8px; cursor: pointer;
+    font-family: "JetBrains Mono", monospace; letter-spacing: 2px;
+  }
+  button:hover { background: #fff; color: #000; }
+  .result { margin-top: 24px; font-size: 12px; color: #888; }
+  .code { font-size: 42px; font-weight: 700; letter-spacing: 10px; margin-top: 8px; }
+  .code.err { color: #ff5f5f; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>MC AIRPORT CODES</h1>
+    <p class="sub">Enter coordinates, get the 4-letter code</p>
+
+    <div class="field">
+      <label for="x">X COORDINATE</label>
+      <input id="x" type="number" placeholder="e.g. 501" autofocus>
+    </div>
+    <div class="field">
+      <label for="z">Z COORDINATE</label>
+      <input id="z" type="number" placeholder="e.g. -1303">
+    </div>
+
+    <button onclick="lookup()">GET CODE</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
+<script>
+  const SPAWN = { x: 501, z: -1303 }; // center of region AAAA
+  const SIZE = 50;                    // region is SIZE x SIZE blocks
+
+  function encode2(v) {
+    v = ((v % 676) + 676) % 676; // wrap negative region indices
+    return String.fromCharCode(65 + Math.floor(v / 26), 65 + (v % 26));
+  }
+
+  function regionIndex(coord, spawn) {
+    return Math.floor((coord - spawn + SIZE / 2) / SIZE);
+  }
+
+  function codeFor(x, z) {
+    const rx = regionIndex(x, SPAWN.x);
+    const rz = regionIndex(z, SPAWN.z);
+    return encode2(rx) + encode2(rz);
+  }
+
+  function lookup() {
+    const x = parseInt(document.getElementById('x').value, 10);
+    const z = parseInt(document.getElementById('z').value, 10);
+    const result = document.getElementById('result');
+
+    if (isNaN(x) || isNaN(z)) {
+      result.innerHTML = '<div class="code err">ENTER BOTH</div>';
+      return;
+    }
+    result.innerHTML = '<div>AIRPORT CODE</div><div class="code">' + codeFor(x, z) + '</div>';
+  }
+
+  document.getElementById('x').addEventListener('keydown', e => { if (e.key === 'Enter') lookup(); });
+  document.getElementById('z').addEventListener('keydown', e => { if (e.key === 'Enter') lookup(); });
+</script>
+</body>
+</html>
